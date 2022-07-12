@@ -32,7 +32,6 @@ jobs:
 
     - name: commands
       run: |
-          echo $(git describe --tag)
           echo $(git describe --always --abbrev=0 --match "NOT A TAG")
           echo $(git describe --tags HEAD)
           

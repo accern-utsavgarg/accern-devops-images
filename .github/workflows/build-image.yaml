@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       image:
-        description: 'Image to build'     
+        description: 'Docker Image to build'     
         required: true
         type: choice
         options:

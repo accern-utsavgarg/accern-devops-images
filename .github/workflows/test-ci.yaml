@@ -19,7 +19,7 @@ env:
   ECR_REPOSITORY: ${{ github.event.inputs.image }}
   IMAGE_TAG: ${{ github.event.inputs.image_tag }}
   FILE_PATH: ${{ github.event.inputs.image }}
-  VERSION: ${{ git describe --always --abbrev=0 --match "NOT A TAG" }}
+  VERSION: ${{ git describe --tag }}
 jobs:
   log-the-inputs:
     runs-on: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
     - name: commands
       run: |
           echo $VERSION
-          echo $(git describe --tag)
+          echo $(git describe --always --abbrev=0 --match "NOT A TAG")
           echo $(git describe --tags HEAD)
           
           

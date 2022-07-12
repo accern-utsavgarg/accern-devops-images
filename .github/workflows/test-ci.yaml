@@ -1,5 +1,15 @@
 on: 
   workflow_dispatch:
+     inputs:
+      image:
+        description: 'Image to build'     
+        required: true
+        type: choice
+        options:
+        - helm
+        - jumper
+        - redis-backup
+        - terraform
 env:
   ECR_REGISTRY: 957335373174.dkr.ecr.us-east-1.amazonaws.com
   ECR_REPOSITORY: ${{ github.event.inputs.image }}

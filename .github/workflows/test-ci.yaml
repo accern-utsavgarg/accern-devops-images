@@ -31,7 +31,7 @@ jobs:
       run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
 
     - name: Disable workflow commands
-        run: |
+      run: |
           echo $FILE_NAME
           echo ${1:-master}
           echo $(git describe --always --abbrev=0 --match "NOT A TAG")

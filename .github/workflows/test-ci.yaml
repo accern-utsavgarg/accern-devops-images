@@ -33,7 +33,7 @@ jobs:
 
     - name: commands
       run: |
-          echo $(VERSION)
+          echo $VERSION
           echo $(git describe --tag)
           echo $(git describe --tags HEAD)
           

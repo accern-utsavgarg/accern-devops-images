@@ -36,7 +36,7 @@ jobs:
       run: |
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
           echo "::set-output name=sha_shorta::$(git describe --always --abbrev=0 --match "NOT A TAG")"
-          echo "::set-output name=sha_shortb::$(git describe --tag)"
+          echo "::set-output name=sha_shortb::$(git describe --always)"
     
     - name: Check outputs
       run: |

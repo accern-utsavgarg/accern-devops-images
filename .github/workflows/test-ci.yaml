@@ -1,0 +1,25 @@
+on: 
+  workflow_dispatch:
+env:
+  ECR_REGISTRY: 957335373174.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REPOSITORY: ${{ github.event.inputs.image }}
+  IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+  FILE_PATH: ${{ github.event.inputs.image }}
+jobs:
+  log-the-inputs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      
+    - name: Disable workflow commands
+        run: |
+          echo $FILE_NAME
+          echo ${1:-master}
+          echo $(git describe --always --abbrev=0 --match "NOT A TAG")
+          echo $(git describe --tag)
+          echo ${1:-$(git describe --tags HEAD)}

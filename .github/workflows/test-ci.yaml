@@ -30,9 +30,17 @@ jobs:
     - name: Get current date
       id: date
       run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-
-    - name: commands
+      
+    - name: Set outputs
+      id: vars
       run: |
-          echo ${{ steps.vcs.outputs.commit }}
-          
-          
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+          echo "::set-output name=sha_shorta::$(git describe --always --abbrev=0 --match "NOT A TAG")"
+          echo "::set-output name=sha_shortb::$(git describe --tag)"
+    
+    - name: Check outputs
+      run: |
+         echo ${{ steps.vars.outputs.sha_short }} 
+         echo ${{ steps.vars.outputs.sha_shorta }}   
+         echo ${{ steps.vars.outputs.sha_shortb }}   
+      

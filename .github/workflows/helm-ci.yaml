@@ -1,0 +1,30 @@
+on: 
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Image to build'     
+        required: true
+        type: choice
+        options:
+        - helm
+        - jumper
+jobs:
+  log-the-inputs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Run commands
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+        
+        helm version
+        
+        helm plugin install https://github.com/chartmuseum/helm-push
+        helm cm-push --help
+        
+        helm repo add argocd-chartmuseum https://test-v3.accern.com/chartmuseumargocd --username ${{ secrets.CHARTMUSEUM_USERNAME }} --password ${{ secrets.CHARTMUSEUM_PASSWORD}}
+        helm search repo argocd-chartmuseum 

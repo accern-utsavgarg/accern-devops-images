@@ -1,13 +1,4 @@
-on: 
-  workflow_dispatch:
-    inputs:
-      image:
-        description: 'Image to build'     
-        required: true
-        type: choice
-        options:
-        - helm
-        - jumper
+on: workflow_dispatch
 jobs:
   log-the-inputs:
     runs-on: ubuntu-latest

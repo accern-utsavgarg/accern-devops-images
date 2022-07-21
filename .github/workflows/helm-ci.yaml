@@ -30,6 +30,6 @@ jobs:
         helm search repo argocd-chartmuseum 
         
         cd helm-chart
-        la -al
+        ls -al
         helm cm-push . argocd-chartmuseum
         

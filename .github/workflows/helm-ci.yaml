@@ -28,3 +28,7 @@ jobs:
         
         helm repo add argocd-chartmuseum https://test-v3.accern.com/chartmuseumargocd --username ${{ secrets.CHARTMUSEUM_USERNAME }} --password ${{ secrets.CHARTMUSEUM_PASSWORD}}
         helm search repo argocd-chartmuseum 
+        
+        cd helm-chart
+        helm cm-push . argocd-chartmuseum
+        

@@ -1,0 +1,54 @@
+kind: IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+metadata:
+  name: accern-platform-api-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  tls:
+    secretName: app-domain-tls-cert
+  routes:         
+    - kind: Rule
+      {{- if .Values.appSubDomain }}
+      match: Host(`{{ .Values.appSubDomain }}.{{ .Values.appDomainExternal }}`)
+      {{- else }}
+      match: Host(`{{ .Values.appDomainExternal }}`)
+      {{- end }}
+      priority: 10
+      services:
+        - kind: Service
+          name: accern-platform-api
+          namespace: {{ .Release.Namespace }}
+          passHostHeader: true
+          port: 80
+          strategy: RoundRobin
+          weight: 10
+
+---
+kind: IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+metadata:
+  name: accern-platform-dashboard-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  tls:
+    secretName: dashboard-domain-tls-cert
+  routes:     
+    - kind: Rule
+      {{- if .Values.appSubDomain }}
+      match: Host(`dashboard.{{ .Values.appSubDomain }}.{{ .Values.appDomainExternal }}`)
+      {{- else }}
+      match: Host(`dashboard.{{ .Values.appDomainExternal }}`)
+      {{- end }}
+      priority: 10
+      services:
+        - kind: Service
+          name: output-kb-http
+          namespace: {{ .Release.Namespace }}
+          passHostHeader: true
+          port: 5601
+          strategy: RoundRobin
+          weight: 10

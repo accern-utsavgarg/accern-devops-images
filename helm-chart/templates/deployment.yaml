@@ -1,0 +1,266 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: accern-platform-api
+  name: accern-platform-api
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.appReplicas }}
+  selector:
+    matchLabels:
+      app: accern-platform-api
+  template:
+    metadata:
+      labels:
+        app: accern-platform-api
+    spec:
+      serviceAccountName: "accern-api"
+      volumes:
+        - name: upload-storage
+          persistentVolumeClaim:
+            claimName: data-upload-pvc
+      {{- if eq (.allowSpotInstances | default "FALSE") "TRUE" }}
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: spot-az
+        effect: NoSchedule
+      nodeSelector:
+        kube/nodetype: spot-az
+      {{- end }}
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: accern-platform-api
+        env:
+        {{- if .Values.printEnvOnStart }}
+        - name: PRINT_ENV
+          value: "true"
+        {{- end }}
+        - name: APP_URL
+          value: {{ required "A valid appURL is required!" .Values.appURL }}
+        - name: INTERNAL_DOMAIN
+          value: {{ required "A valid appDomainInternal is required!" .Values.appDomainInternal }}
+        - name: NODE_ENV
+          value: {{ required "A valid env is required!" .Values.env }}
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ required "A valid dbCredSecret is required!" .Values.dbCredSecret }}
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ required "A valid dbCredSecret is required!" .Values.dbCredSecret }}
+              key: password
+        - name: DB_DATABASE
+          value: {{ required "A valid dbDatabase is required!" .Values.dbDatabase }}
+        - name: DB_HOST
+          value: {{ required "A valid dbHost is required!" .Values.dbHost }}
+        - name: DB_PORT
+          value: "{{ required "A valid dbPort is required!" .Values.dbPort }}"
+        - name: DB_DIALECT
+          value: postgres
+        - name: DB_SSL
+          value: "{{ required "A valid dbSSL is required!" .Values.dbSSL }}"
+        
+        # SECURITY
+        - name: JWT_SECRET
+          value: {{ required "A valid jwsSecret is required!" .Values.jwsSecret }}
+
+        # APM
+        - name: APM_SERVICE_VERSION
+          value: {{ .Values.imageVersion | default .Chart.AppVersion }}
+        - name: APM_ACTIVE
+          value: {{ required "A valid apmActive is required!" .Values.apmActive | quote }}
+        - name: ELASTIC_APM_SERVICE_NAME
+          value: {{ .Values.apmServiceName }}
+        - name: ELASTIC_APM_SECRET_TOKEN
+          value: {{ .Values.apmToken }}
+        - name: APM_SECRET_TOKEN
+          value: {{ .Values.apmToken }}
+        - name: ELASTIC_APM_SERVER_URL
+          value: {{ .Values.apmServerURL }}
+        - name: APM_SERVER_URL
+          value: {{ .Values.apmServerURL }}
+        - name: ELASTIC_APM_VERIFY_SERVER_CERT
+          value: "false"
+        - name: APM_VERIFY_SERVER_CERT
+          value: "false"
+
+        - name: KEYWORD_SERVER_URL
+          value: {{ required "A valid keywordServerUrl is required!" .Values.keywordServerUrl }}
+        - name: KEYWORD_SERVER_TOKEN
+          value: {{ required "A valid KeywordServerToken is required!" .Values.KeywordServerToken }}
+
+        - name: GIT_TOKEN
+          value: {{ required "A valid uiGitToken is required!" .Values.uiGitToken }}
+        - name: UI_VERSION
+          value: {{ required "A valid uiVersion is required!" .Values.uiVersion }}
+        - name: FU_S3_ACCESS_KEY
+          value: {{ .Values.s3AccessKey }}
+        - name: FU_S3_SECRET_ACCESS_KEY
+          value: {{ .Values.s3SecretKey }}
+        - name: AWS_ACCESS_KEY_ID
+          value: {{ .Values.s3AccessKey }}
+        - name: AWS_SECRET_ACCESS_KEY
+          value: {{ .Values.s3SecretKey }}
+        - name: FU_S3_REGION
+          value: {{ .Values.s3Region }}
+        - name: S3_REGION
+          value: {{ .Values.s3Region }}
+        - name: S3_BUCKET_FORECASTING
+          value: {{ .Values.s3BucketForecasting }}
+        - name: S3_SUB_PATH_FORECASTING
+          value: {{ .Values.s3BucketForecastingSubPath }}
+        - name: S3_BUCKET_NLP_FILE_UPLOAD
+          value: {{ .Values.s3BucketNLPFileUpload }}
+        - name: S3_SUB_PATH_NLP_FILE_UPLOAD
+          value: {{ .Values.s3SubPathNLPFileUpload }}
+        - name: DREMIO_USER
+          value: {{ .Values.dremioUser }}
+        - name: DREMIO_PASSWORD
+          value: {{ .Values.dremioPassword }}
+        - name: DREMIO_HOST
+          value: {{ .Values.dremioHost }}
+        - name: PREMIUM_SNOWFLAKE_USER
+          value: {{ required "Premium snowflake user name" .Values.premiumSnowflakeUser }}
+        - name: PREMIUM_SNOWFLAKE_PASSWORD
+          value: {{ required "Premium snowflake user password" .Values.premiumSnowflakePassword }}
+        - name: PREMIUM_SNOWFLAKE_ACCOUNT
+          value: {{ required "Premium snowflake user password" .Values.premiumSnowflakeAccount }}
+
+        {{- range required "A valid esConfigs is required!" .Values.esConfigs }}
+          
+          #{{ .type }}
+        {{- include "esConfig" . | indent 8 }}
+        {{- end }}
+        
+        - name: EXTRACTION_MODE
+          value: {{ .Values.extractionMode }}
+
+        - name: AUTHORITY_TRUSTSTORE_SINK
+          value: /trust/ca-keystore.jks
+        - name: AUTHORITY_TRUSTSTORE_PASSWORD
+          value: {{ required "A valid credKeystorePassword is required!" .Values.credKeystorePassword }}
+        - name: ES_HTTPS
+          value: "{{ required "A valid esConnectorHttps is required!" .Values.esConnectorHttps }}"
+
+        - name: KAFKA_SERVER_INPUT
+          value: {{ required "A valid kafkaInputBootstrap is required!" .Values.kafkaInputBootstrap }}
+        - name: KAFKA_SERVER_OUTPUT
+          value: {{ required "A valid kafkaOutputBootstrap is required!" .Values.kafkaOutputBootstrap }}
+
+        - name: KAFKA_SERVER_INPUT_EXT
+          value: {{ required "A valid kafkaInputBootstrapExt is required!" .Values.kafkaInputBootstrapExt }}
+        - name: KAFKA_SERVER_OUTPUT_EXT
+          value: {{ required "A valid kafkaOutputBootstrapExt is required!" .Values.kafkaOutputBootstrapExt }}
+        
+        - name: CONNECT_INPUT_HOST
+          value: {{ required "A valid kafkaConnectInputHost is required!" .Values.kafkaConnectInputHost }}
+        - name: CONNECT_INPUT_PORT
+          value: "{{ required "A valid kafkaConnectInputPort is required!" .Values.kafkaConnectInputPort }}"
+
+        - name: CONNECT_OUTPUT_HOST
+          value: {{ required "A valid kafkaConnectOutputHost is required!" .Values.kafkaConnectOutputHost }}
+        - name: CONNECT_OUTPUT_PORT
+          value: "{{ required "A valid kafkaConnectOutputPort is required!" .Values.kafkaConnectOutputPort }}"
+
+        - name: FILE_UPLOAD_PATH
+          value: /mnt/uploads
+        - name: SNOWFLAKE_PVT_KEY_PATH
+          value: /mnt/configs/snowflake
+        
+        - name: SKIP_LEGACY_DB_CREATION
+          value: "{{ required "A valid legacyDBSupport is required!" .Values.legacyDBSupport }}"
+
+        - name: DATA_OUTPUT_KIBANA
+          value: {{ required "A valid kibanaOutput is required!" .Values.kibanaOutput }}
+        
+        - name: PIPELINES_API_HOST
+          value: {{ required "A valid sparkPipelineHost is required!" .Values.sparkPipelineHost }}
+
+        - name: PIPELINES_API_TOKEN
+          value: {{ required "A valid sparkPipelineToken is required!" .Values.sparkPipelineToken }}
+
+        - name: K8S_PIPELINE_VERSION
+          value: {{ required "A valid sparkPipelineVersion is required!" .Values.sparkPipelineVersion }}
+
+        - name: XYME_URL
+          value: {{ required "A valid xymeURL is required!" .Values.xymeURL }}
+
+        - name: XYME_DEFAULT_PIPELINE
+          value: {{ required "A valid xymeDefaultPipeline is required!" .Values.xymeDefaultPipeline }}
+        
+        - name: XYME_DEFAULT_HIST_PIPELINE
+          value: {{ required "A valid xymeDefaultHistPipeline is required!" .Values.xymeDefaultHistPipeline }}
+
+        - name: XYME_TOKEN
+          value: {{ required "A valid xymeToken is required!" .Values.xymeToken }}
+
+        - name: XYME_DEFAULT_TRAINING_PIPELINE
+          value: {{ required "A valid xymeDefaultTrainingPipeline is required!" .Values.xymeDefaultTrainingPipeline }}
+
+        - name: SEND_GRID_API_KEY
+          value: {{ required "A valid sendGridApiKey is required!" .Values.sendGridApiKey }}
+        
+        - name: MESSAGE_NEW_ACCOUNT_EMAIL
+          value: {{ required "A valid newAccountEmail is required!" .Values.newAccountEmail }}
+
+        - name: LOG_FORMAT
+          value: {{ .Values.logFormat }}
+
+        - name: LOG_COLOR
+          value: {{ .Values.logColors | quote }}
+
+        - name: LOG_FORMAT_RAW
+          value: {{.Values.logPrettyRaw | quote }}
+
+        - name: CROSS_ACCOUNT_S3_SECRET_ACCESS_KEY
+          value: {{ required "A valid s3CrossAccountSecretAccessKey is required!" .Values.s3CrossAccountSecretAccessKey }}
+
+        - name: CROSS_ACCOUNT_S3_ACCESS_KEY
+          value: {{ required "A valid s3CrossAccountAccessKey is required!" .Values.s3CrossAccountAccessKey }}
+
+
+        - name: THOUGHTSPOT_HOST
+          value: {{ required "ThoughSpot config is required!" .Values.thoughtSpotHost }}
+        - name: THOUGHTSPOT_USER
+          value: {{ required "ThoughSpot config is required!" .Values.thoughtSpotUser }}
+        - name: THOUGHTSPOT_PASSWORD
+          value: {{ required "ThoughSpot config is required!" .Values.thoughtSpotPassword }}
+        - name: THOUGHTSPOT_SECRET_KEY
+          value: {{ required "ThoughSpot config is required!" .Values.thoughtSpotSecretKey }}
+        - name: LAUNCH_DARKLY_SDK_KEY
+          value: {{ required "Launch Darkly config is required!" .Values.launchDarklySDKKey }}
+
+        image: {{ .Values.image | default "accern/accern-platform-api:" }}{{ .Values.imageVersion }}
+        ports:
+        - containerPort: 4000
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /.well-known/apollo/server-health
+            port: http
+          initialDelaySeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /.well-known/apollo/server-health
+            port: http
+          initialDelaySeconds: 30
+        volumeMounts:
+          - mountPath: /mnt/uploads
+            name: upload-storage
+            subPath: "{{$.Release.Namespace}}/uploads"
+          - mountPath: /mnt/configs
+            name: upload-storage
+            subPath: "{{$.Release.Namespace}}/configs"
+
+        resources:
+          limits:
+            cpu: '1'
+            memory: {{ .Values.memoryLimit }}
+          requests:
+            cpu: '1'
+            memory: {{ .Values.memoryRequest }}

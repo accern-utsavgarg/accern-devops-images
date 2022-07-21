@@ -1,0 +1,53 @@
+{{- if .Values.seed }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Chart.Name }}-{{ .Chart.AppVersion }}-seed"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Values.imageVersion | default .Chart.AppVersion | replace "+" "-" }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-3"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "-"  }}"
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Never
+      containers:
+      - name: post-migrate-job
+        image: {{ .Values.image | default "accern/accern-platform-api:" }}{{ .Values.imageVersion }}
+        command: ["npm", "run", "db:seed"]
+        env:
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.dbCredSecret }}
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.dbCredSecret }}
+                key: password
+          - name: DB_DATABASE
+            value: {{ .Values.dbDatabase }}
+          - name: DB_HOST
+            value: {{ .Values.dbHost }}
+          - name: DB_PORT
+            value: "{{ .Values.dbPort }}"
+          - name: DB_DIALECT
+            value: postgres
+          - name: DB_SSL
+            value: "{{ .Values.dbSSL }}"
+{{- end }}

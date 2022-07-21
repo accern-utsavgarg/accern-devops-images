@@ -1,8 +1,0 @@
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: xyme-monitor-config
-  namespace: {{ .Release.Namespace }}
-data:
-  PORT: "8080"
-  HOST: 0.0.0.0

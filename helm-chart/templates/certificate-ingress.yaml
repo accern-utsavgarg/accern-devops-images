@@ -1,0 +1,27 @@
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: app-domain-tls-cert
+spec:
+  commonName: {{ .Values.appDomainExternal }}
+  secretName: app-domain-tls-cert
+  dnsNames:
+    - {{ .Values.appDomainExternal }}
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: dashboard-domain-tls-cert
+spec:
+  commonName: dashboard.{{ .Values.appDomainExternal }}
+  secretName: dashboard-domain-tls-cert
+  dnsNames:
+    - dashboard.{{ .Values.appDomainExternal }}
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

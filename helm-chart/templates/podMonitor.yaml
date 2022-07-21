@@ -1,0 +1,49 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: xyme-pod-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  podMetricsEndpoints:
+    - path: /metrics
+      port: prometheus
+      relabelings:
+        - action: replace
+          regex: (.*)
+          replacement: $1
+          separator: ;
+          sourceLabels:
+            - __meta_kubernetes_namespace
+          targetLabel: namespace
+        - action: replace
+          regex: (.*)
+          replacement: $1
+          separator: ;
+          sourceLabels:
+            - __meta_kubernetes_pod_name
+          targetLabel: kubernetes_pod_name
+        - action: replace
+          regex: (.*)
+          replacement: $1
+          separator: ;
+          sourceLabels:
+            - __meta_kubernetes_pod_node_name
+          targetLabel: node_name
+        - action: replace
+          regex: (.*)
+          replacement: $1
+          separator: ;
+          sourceLabels:
+            - __meta_kubernetes_pod_host_ip
+          targetLabel: node_ip
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - xyme-worker

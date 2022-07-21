@@ -1,0 +1,65 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: xyme-config
+  namespace: {{ .Release.Namespace }}
+data:
+  BACKEND_DEFAULTS: /xyme/xyme-backend/backend.json
+  LICENSE_FILE: /xyme/xyme-license/license.key
+  ENV: staging
+  PYTHONUNBUFFERED: "0"
+
+  REDIS_HOST: rfs-redis-cluster
+  REDIS_PORT: "6379"
+  REDIS_SENTINEL_HOST: rfs-redis
+  REDIS_SENTINEL_PORT: "26379"
+  USE_FILE_REDIS: "true"
+
+  MNT_PATH: /mnt
+  BLOB_FILEPATH: /mnt/data/userdata/blob
+  NS_FILEPATH: /mnt/data/userdata/ns
+  LOG_FILEPATH: /mnt/data/userdata/log
+  TMP_FILEPATH: /mnt/data/userdata/tmp
+  STATIC_FILEPATH: /mnt/data/static
+  TMP_QUICK: /cache/tmp
+
+  OPENBLAS_NUM_THREADS: "8"
+  AUTOSKLEARN_MEM_LIMIT: "{{ .Values.autosklearnMemLimit }}"
+
+  KUBERNETES_NAMESPACE: "{{ .Release.Namespace }}"
+  KUBERNETES_MAX_JOB: "10"
+  KUBERNETES_MACHINE_TYPES: "{{ .Values.machineTypes }}"
+  KUBERNETES_MAX_REPLICAS: "1"
+  JOB_CLEAN_UP_DELAY_S: "172800"
+  XYME_SERVER_TOKEN: "{{ .Values.xymeServerToken }}"
+  XYME_CONFIG_TOKEN: "{{ .Values.xymeConfigToken }}"
+  IMAGE_REPO: "{{ .Values.imageRepo }}"
+  IMAGE_TAG: "{{ .Values.imageTag }}"
+  ECR_URL: "{{ .Values.ecrUrl }}"
+
+  MAX_INSTANCES_PER_WORKER: "8"
+  TOKENIZERS_PARALLELISM: "true"
+  TRITON_URL: "triton-dev-triton-inference-server.{{ .Values.platformNamespace | default .Release.Namespace }}:8000"
+  TRITON_KIND: "{{ .Values.tritonKind }}"
+
+  KAFKA_BOOTSTRAP: "output-kafka-brokers.{{ .Values.platformNamespace | default .Release.Namespace }}:9092"
+  KAFKA_MAX_POLL_MS: "1800000"
+  KAFKA_OUTPUT_PARTITIONS: "32"
+  KAFKA_REPLICATION: "2"
+  KAFKA_MAX_MESSAGE_SIZE: "50000000"
+  KAFKA_RETENTION_SIZE: "500000000"
+  KAFKA_SEGMENT_SIZE: "100000000"
+  KAFKA_REQUEST_TIMEOUT: "300000"
+
+  BASE_CACHE_EXPIRE: "300"
+  VAR_CACHE_EXPIRE: "90"
+  LOCAL_CACHE_SIZE: "7500"
+
+  PROMETHEUS_PORT: "9090"
+  prometheus_multiproc_dir: /cache/metrics
+
+  XYME_CACHE_HOST: "0.0.0.0"
+  XYME_CACHE_PORT: "8080"
+  XYME_CACHE_POOL_SIZE: "5000000"
+  XYME_CACHE_URL: "xyme-cache:8080"
+  LOG_CACHE: {{ .Values.logCache | default 0 | quote }}

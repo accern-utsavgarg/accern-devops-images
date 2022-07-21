@@ -1,0 +1,12 @@
+Thank you for installing {{ .Chart.Name }}.
+Your release is named {{ .Release.Name }}.
+
+The following scripts are available in the xyme-scripts folder:
+
+1. setup_config.py             => Configures xyme with S3 credentials and proper alias for S3 buckets
+2. download_sentiment_model.py => Upload the sentiment model binary to the specified bucket
+3. setup_sentiment_model.py    => Deploy dags for sentiment model
+4. verify_inference.py         => Verify the inference model performance
+5. verify_kafka_init.py        => Initiate verifying the kafka model
+6. verify_kafka_result.py      => Verify the kafka model performance
+7. scale_worker                => Scale dag queue workers up and down

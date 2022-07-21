@@ -1,0 +1,26 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: xyme-backend
+  namespace: {{ .Release.Namespace }}
+data:
+  backend.json: |-
+    {
+      "cache": {{ .Values.cache | default "[\"remote_lru\"]" }},
+      "logger": ["json", "prometheus", "node", "file_errors"],
+      "status_emitter": ["logger"],
+      "executor_mng": "k8s",
+      "task_mng": {
+        "node:cpubig": "redis",
+        "node:cpusmall": "redis",
+        "node:gpubig": "redis",
+        "node:gpusmall": "redis"
+      },
+      "queue_mng": {
+          "parallel:queue": "redis",
+          "parallel:kafka": "kafka"
+      },
+      "mtype": "redis",
+      "progress": "redis",
+      "ns": "disk"
+    }

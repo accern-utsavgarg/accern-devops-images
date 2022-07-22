@@ -44,8 +44,10 @@ jobs:
       run: |
         # Build a docker container and push it to ECR 
         cd $FILE_PATH
+        echo $VERSION
+        echo $VERSION_READABLE
         #docker build -t ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker build --platform linux/amd64 -f Dockerfile --build-arg VERSION=${VERSION} --build-arg VERSION_READABLE=${VERSION_READABLE} --platform linux/amd64 -t ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$IMAGE_TAG  .
+        docker build --platform linux/amd64 -f Dockerfile --build-arg VERSION=${VERSION} --build-arg VERSION_READABLE=${VERSION_READABLE} --platform linux/amd64 --tag ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$IMAGE_TAG  .
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master

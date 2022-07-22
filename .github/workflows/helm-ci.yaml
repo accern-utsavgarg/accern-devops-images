@@ -29,7 +29,7 @@ on:
         - spark-rbac
         - traefik-forward-auth
         - triton-inference-server
-        - xyme-backend
+        - helm-chart
 env:
   CHARTMUSEUM_USERNAME: ${{ secrets.CHARTMUSEUM_USERNAME }}
   CHARTMUSEUM_PASSWORD: ${{ secrets.CHARTMUSEUM_PASSWORD}}

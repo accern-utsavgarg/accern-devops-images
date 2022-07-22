@@ -25,7 +25,7 @@ jobs:
       id: date
       run: |
         echo "::set-output name=date::$(date +'%Y-%m-%d')"
-        echo "::set-output name=VERSION::$(git describe --always --abbrev=0 --match "NOT A TAG")"
+        echo "::set-output name=VERSION::$(git describe --always --abbrev=0 --match "NOT A TAG")
         echo "::set-output name=VERSION_READABLE::$(git describe --tag)"
 
     - name: Configure AWS credentials

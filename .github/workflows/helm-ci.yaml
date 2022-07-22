@@ -53,7 +53,7 @@ jobs:
         helm plugin install https://github.com/chartmuseum/helm-push
 
     - name: Add helm repo
-      run: helm repo add argocd-chartmuseum https://test-v3.accern.com/chartmuseumargocd --username $CHARTMUSEUM_USERNAME --password $CHARTMUSEUM_PASSWORD
+      run: helm repo add $CHARTMUSEUM_NAME $CHARTMUSEUM_URL --username $CHARTMUSEUM_USERNAME --password $CHARTMUSEUM_PASSWORD
 
     - name: Push helm chart
       run: | 

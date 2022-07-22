@@ -1,26 +1,63 @@
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+      helm-chart:
+        description: 'Package and Push helm chart'     
+        required: true
+        type: choice
+        options:
+        - accern-early-provisioning
+        - argocd-backup
+        - aws-ebs-csi-driver-storage-class
+        - aws-ebs-csi-driver
+        - aws-efs-csi-driver-storage-class
+        - aws-efs-csi-driver
+        - cluster-autoscaling
+        - devops-jumper
+        - efs-init
+        - elastic-operator
+        - external-dns
+        - ingress-utilities
+        - jupyterhub-utilities
+        - kafka-operator
+        - nvidia-device-plugin
+        - postgres-operator
+        - prometheus-utilities
+        - redis-backup
+        - redis-operator
+        - spark-operator
+        - spark-rbac
+        - traefik-forward-auth
+        - triton-inference-server
+        - xyme-backend
+env:
+  CHARTMUSEUM_USERNAME: ${{ secrets.CHARTMUSEUM_USERNAME }}
+  CHARTMUSEUM_PASSWORD: ${{ secrets.CHARTMUSEUM_PASSWORD}}
+  CHARTMUSEUM_URL: ${{ secrets.CHARTMUSEUM_URL}}
+  CHARTMUSEUM_NAME: ${{ secrets.CHARTMUSEUM_NAME}}
+  FILE_PATH: ${{ github.event.inputs.helm-chart }}
 jobs:
-  log-the-inputs:
+  package-push-helm:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
       
-    - name: Run commands
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: v3.6.3
+
+    - name: Install Helm Chart Museum
       run: |
-        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-        chmod 700 get_helm.sh
-        ./get_helm.sh
-        
-        helm version
-        
         helm plugin install https://github.com/chartmuseum/helm-push
-        helm cm-push --help
-        
-        helm repo add argocd-chartmuseum https://test-v3.accern.com/chartmuseumargocd --username ${{ secrets.CHARTMUSEUM_USERNAME }} --password ${{ secrets.CHARTMUSEUM_PASSWORD}}
-        helm search repo argocd-chartmuseum 
-        
-        cd helm-chart
-        ls -al
-        helm cm-push . argocd-chartmuseum
+
+    - name: Add helm repo
+      run: helm repo add argocd-chartmuseum https://test-v3.accern.com/chartmuseumargocd --username $CHARTMUSEUM_USERNAME --password $CHARTMUSEUM_PASSWORD
+
+    - name: Push helm chart
+      run: | 
+       cd $FILE_PATH
+       echo "Building helm chart ::::" $FILE_PATH
+       helm cm-push . argocd-chartmuseum
         

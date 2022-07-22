@@ -47,7 +47,7 @@ jobs:
         echo $VERSION
         echo $VERSION_READABLE
         #docker build -t ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker build --platform linux/amd64 -f Dockerfile --build-arg VERSION=${VERSION} --build-arg VERSION_READABLE=${VERSION_READABLE} --platform linux/amd64 --tag ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE  .
+        docker build --platform linux/amd64 -f Dockerfile --build-arg VERSION=${VERSION} --build-arg VERSION_READABLE=${VERSION_READABLE} --platform linux/amd64 ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:${VERSION_READABLE}  .
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master

@@ -37,7 +37,7 @@ jobs:
       run: |
         # Build a docker container and push it to ECR 
         cd $FILE_PATH
-        VERSION=$(git describe --always --abbrev=0 --match "NOT A TAG")"
+        VERSION=$(git describe --always --abbrev=0 --match "NOT A TAG")
         VERSION_READABLE=$(git describe --tag)
         
         echo $VERSION

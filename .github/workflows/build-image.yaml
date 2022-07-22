@@ -43,7 +43,7 @@ jobs:
         VERSION_READABLE=$(git describe --tag)
         
         #docker build -t ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
-        docker build --platform linux/amd64 --build-arg VERSION=$VERSION --build-arg VERSION_READABLE=$VERSION_READABLE --platform linux/amd64 ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
+        docker build --platform linux/amd64 --build-arg VERSION="$VERSION" --build-arg VERSION_READABLE="$VERSION_READABLE" --platform linux/amd64 ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
         echo "::set-output name=IMAGE::${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE"
 
     - name: Build, tag, and push the image to Amazon ECR

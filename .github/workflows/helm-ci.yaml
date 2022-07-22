@@ -66,6 +66,3 @@ jobs:
        cd $FILE_PATH
        echo "Building helm chart ::::" $FILE_PATH
        helm cm-push . argocd-chartmuseum
-       
-    if: github.ref !== 'refs/heads/master'
-        

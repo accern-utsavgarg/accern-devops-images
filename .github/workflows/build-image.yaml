@@ -54,7 +54,7 @@ jobs:
       id: push-image
       run: |
         echo "Pushing image to ECR..."
-        docker push ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE
+        docker push ${{ steps.login-ecr.outputs.registry }}/devops/${ECR_REPOSITORY}:${VERSION_READABLE}
         echo "::set-output name=image::${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$(git describe --tag)"
     
     - name: Run Trivy vulnerability scanner

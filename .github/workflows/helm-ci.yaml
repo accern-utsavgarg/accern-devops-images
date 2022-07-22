@@ -43,6 +43,7 @@ jobs:
     - name: Checking if its the main branch
       if: github.ref == 'refs/heads/master'
       run: |
+       echo "github.ref" ${{ github.ref }}
        echo "This workflow only runs on main branch. Please select main branch while you trigger workflow manually"
        exit 1
        
@@ -56,6 +57,8 @@ jobs:
 
     - name: Install Helm Chart Museum
       run: |
+        ls -l
+        echo "github.ref" ${{ github.ref }}
         helm plugin install https://github.com/chartmuseum/helm-push
 
     - name: Add helm repo

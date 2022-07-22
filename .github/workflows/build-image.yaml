@@ -49,17 +49,6 @@ jobs:
         docker build -t ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
         #docker build --platform linux/amd64 --build-arg VERSION=${VERSION} --build-arg VERSION_READABLE=${VERSION_READABLE} --platform linux/amd64 ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
         #echo "::set-output name=VERSION_READABLE::$(git describe --tag)"
-    
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-          image-ref: '${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:${VERSION_READABLE}'
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          output: ${{ steps.date.outputs.date }}
-          severity: 'CRITICAL,HIGH'
 
     - name: Build, tag, and push the image to Amazon ECR
       id: push-image

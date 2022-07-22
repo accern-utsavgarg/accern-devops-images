@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checking if its the main branch
-      if: startwith (github.ref == 'refs/heads/master')
+      if: github.ref == 'refs/heads/master'
       run: |
        echo "This workflow only runs on main branch. Please select main branch while you trigger workflow manually"
        exit 1

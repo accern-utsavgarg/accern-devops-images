@@ -44,6 +44,9 @@ jobs:
       run: |
         # Build a docker container and push it to ECR 
         cd $FILE_PATH
+        VERSION=$(git describe --always --abbrev=0 --match "NOT A TAG")"
+        VERSION_READABLE=$(git describe --tag)
+        
         echo $VERSION
         echo $VERSION_READABLE
         docker build -t ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
@@ -64,8 +67,8 @@ jobs:
       id: push-image
       run: |
         echo "Pushing image to ECR..."
-        docker push ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
+        docker push ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE
+        echo "::set-output name=image::${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$VERSION_READABLE"
 
     - name: logout from ECR
       if: always()

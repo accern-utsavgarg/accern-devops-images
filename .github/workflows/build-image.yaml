@@ -41,17 +41,12 @@ jobs:
         cd $FILE_PATH
         echo "###########"
         VERSION=$(git describe --always --abbrev=0 --match "NOT A TAG")
-        echo $VERSION
         echo "$$$$$$$$$"
         VERSION_READABLE=$(git describe --tag)
-        echo $VERSION_READABLE
-        echo $GITHUB_BASE_REF
-        echo $GITHUB_HEAD_REF
-        echo $GITHUB_REF
-        echo $GITHUB_REF_TYPE
+        echo "VERSION_READABLE=$(git describe --tag)" >> $GITHUB_ENV
+        echo "VERSION=$(git describe --always --abbrev=0 --match "NOT A TAG")" >> >> $GITHUB_ENV
         
-        
-        #docker build -t ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
         #docker build --platform linux/amd64 --build-arg VERSION=${VERSION} --build-arg VERSION_READABLE=${VERSION_READABLE} --platform linux/amd64 ${{ steps.login-ecr.outputs.registry }}/devops/$ECR_REPOSITORY:$VERSION_READABLE .
         #echo "::set-output name=VERSION_READABLE::$(git describe --tag)"
     

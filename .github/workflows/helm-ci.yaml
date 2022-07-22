@@ -39,8 +39,13 @@ env:
 jobs:
   package-push-helm:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
     steps:
+    - name: Checking if its the main branch
+      if: startwith (github.ref == 'refs/heads/master')
+      run: |
+       echo "This workflow only runs on main branch. Please select main branch while you trigger workflow manually"
+       exit 1
+       
     - name: Checkout
       uses: actions/checkout@v2
       
@@ -61,4 +66,6 @@ jobs:
        cd $FILE_PATH
        echo "Building helm chart ::::" $FILE_PATH
        helm cm-push . argocd-chartmuseum
+       
+    if: github.ref !== 'refs/heads/master'
         
